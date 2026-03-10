@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CTAH</title>
+<style>
+:root{
+  --primary:#0071e3;
+  --bg:#f5f5f7;
+  --text:#1d1d1f;
+  --mine-bg:#0071e3;
+  --other-bg:#e0e0e0;
+  --online:#25D366;
+  --offline:#a0a0a0;
+}
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+body{background:var(--bg);display:flex;justify-content:center;align-items:center;height:100vh;color:var(--text);}
+.auth{position:absolute;inset:0;display:flex;justify-content:center;align-items:center;}
+.card{width:350px;padding:30px;background:rgba(255,255,255,0.95);border-radius:25px;box-shadow:0 10px 30px rgba(0,0,0,0.1);text-align:center;}
+.card img.logo{width:80px;height:80px;margin-bottom:15px;border-radius:15px;object-fit:cover;}
+.card input{width:100%;margin:10px 0;padding:14px;border:none;border-radius:12px;background:#f1f1f1;color:var(--text);font-size:16px;}
+.buttons{display:flex;gap:12px;margin-top:15px;}
+.card button{flex:1;padding:14px;border:none;border-radius:12px;background:var(--primary);color:white;font-weight:bold;font-size:15px;cursor:pointer;transition:0.2s;}
+.card button:hover{background:#005bb5;}
+.container{width:500px;height:650px;background:rgba(255,255,255,0.95);border-radius:25px;display:flex;flex-direction:column;padding:20px;display:none;box-shadow:0 10px 40px rgba(0,0,0,0.1);position:relative;}
+#chatHeader{font-weight:600;font-size:20px;margin-bottom:12px;text-align:left;color:var(--text);display:flex;align-items:center;gap:10px;padding:10px;}
+#chatHeader img.logo{width:36px;height:36px;border-radius:8px;object-fit:cover;}
+#messages{flex:1;overflow:auto;display:flex;flex-direction:column;gap:12px;scroll-behavior:smooth;padding-right:5px;}
+.bubble-wrapper{display:flex;align-items:flex-end;gap:10px;position:relative;}
+.bubble{max-width:70%;padding:12px 16px;border-radius:20px;font-size:15px;display:flex;flex-direction:column;word-wrap:break-word;box-shadow:0 2px 12px rgba(0,0,0,0.05);}
+.mine-wrapper{flex-direction:row-reverse;}
+.mine{background:var(--mine-bg);color:white;border-bottom-right-radius:6px;}
+.other{background:var(--other-bg);color:var(--text);border-bottom-left-radius:6px;}
+.avatar{width:32px;height:32px;border-radius:50%;object-fit:cover;position:relative;}
+.status-dot{width:10px;height:10px;border-radius:50%;position:absolute;bottom:0;right:0;border:2px solid white;}
+.msg-info{font-size:11px;opacity:0.7;text-align:right;margin-top:4px;}
+#typing{font-size:13px;opacity:0.7;height:18px;margin-top:5px;font-style:italic;}
+#msgBox{display:flex;gap:12px;margin-top:12px;}
+#msgBox input{flex:1;padding:14px;border-radius:15px;border:none;background:#f1f1f1;font-size:15px;color:var(--text);}
+#msgBox button{padding:14px 18px;border:none;border-radius:15px;background:var(--primary);color:white;font-weight:bold;font-size:15px;cursor:pointer;transition:0.2s;}
+#msgBox button:hover{background:#005bb5;}
+#usersPanel{
+  width:150px;
+  position:fixed;
+  top:20px;
+  right:20px;
+  height:80vh;
+  background:rgba(255,255,255,0.95);
+  border-radius:15px;
+  padding:10px;
+  box-shadow:0 5px 20px rgba(0,0,0,0.1);
+  overflow-y:auto;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  z-index:100;
+}
+.user{padding:10px;border-radius:12px;background:var(--other-bg);cursor:pointer;text-align:center;font-weight:500;display:flex;justify-content:space-between;align-items:center;}
+.user:hover{background:#d0d0d0;}
+.online-dot{width:10px;height:10px;border-radius:50%;background:var(--online);}
+.offline-dot{width:10px;height:10px;border-radius:50%;background:var(--offline);}
+.dmPanel{position:fixed;bottom:20px;width:300px;max-height:400px;background:rgba(255,255,255,0.95);border-radius:15px;display:flex;flex-direction:column;box-shadow:0 5px 20px rgba(0,0,0,0.2);overflow:hidden;z-index:200;right:20px;}
+.dmPanel:not(:first-child){right: calc(20px + 320px);}
+.dmHeader{padding:10px;font-weight:600;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #ccc;}
+.dmMessages{flex:1;overflow:auto;display:flex;flex-direction:column;gap:8px;padding:10px;}
+.dmInput{display:flex;padding:10px;gap:10px;border-top:1px solid #ccc;}
+.dmInput input{flex:1;padding:8px;border-radius:10px;border:none;background:#f1f1f1;}
+.dmInput button{padding:8px 12px;border:none;border-radius:10px;background:var(--primary);color:white;font-weight:bold;cursor:pointer;}
+</style>
+</head>
+<body>
+
+<div id="authScreen" class="auth">
+  <div class="card">
+    <img src="logo.jpg" alt="CTAH Logo" class="logo">
+    <h2>CTAH</h2>
+    <input id="name" placeholder="Kullanıcı adı">
+    <input id="pass" type="password" placeholder="Şifre">
+    <div class="buttons">
+      <button id="registerBtn">Kayıt Ol</button>
+      <button id="loginBtn">Giriş Yap</button>
+    </div>
+  </div>
+</div>
+
+<div class="container" id="chatScreen">
+  <div id="chatHeader">
+    <img src="logo.jpg" alt="CTAH Logo" class="logo"> CTAH
+  </div>
+  <div id="messages"></div>
+  <div id="typing"></div>
+  <div id="msgBox">
+    <input id="msg" placeholder="Mesaj yaz...">
+    <button onclick="send()">Gönder</button>
+  </div>
+</div>
+
+<div id="usersPanel"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, set, push, get, onChildAdded, onValue, onDisconnect, update, remove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCinUnNEzrlAnhbV4p8m55T62oI6V38LM4",
+  authDomain: "ctah-86240.firebaseapp.com",
+  databaseURL: "https://ctah-86240-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "ctah-86240",
+  storageBucket: "ctah-86240.firebasestorage.app",
+  messagingSenderId: "912157147748",
+  appId: "1:912157147748:web:746f4e0a128322bacf5571"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+let currentUser = null;
+let openDMs = {};
+
+// AUTH
+document.getElementById("registerBtn").onclick = async () => {
+  const n = document.getElementById("name").value.trim();
+  const p = document.getElementById("pass").value.trim();
+  if(!n||!p) return alert("İsim ve şifre gerekli!");
+  const userRef = ref(db,"users/"+n);
+  const snap = await get(userRef);
+  if(snap.exists()) return alert("Bu isim kullanılıyor!");
+  await set(userRef, { name:n, pass:p, online:true });
+  currentUser = n;
+  afterLogin();
+}
+
+document.getElementById("loginBtn").onclick = async () => {
+  const n = document.getElementById("name").value.trim();
+  const p = document.getElementById("pass").value.trim();
+  if(!n||!p) return alert("İsim ve şifre gerekli!");
+  const userRef = ref(db,"users/"+n);
+  const snap = await get(userRef);
+  if(!snap.exists()) return alert("Kullanıcı yok!");
+  if(snap.val().pass !== p) return alert("Şifre yanlış!");
+  currentUser = n;
+  await set(ref(db,"users/"+n+"/online"),true);
+  afterLogin();
+}
+
+function afterLogin(){
+  document.getElementById("authScreen").style.display="none";
+  document.getElementById("chatScreen").style.display="flex";
+  document.getElementById("usersPanel").style.display="flex";
+  onDisconnect(ref(db,"users/"+currentUser+"/online")).set(false);
+  loadUsers();
+  listenMessages();
+}
+
+// USERS PANEL
+function loadUsers(){
+  const panel = document.getElementById("usersPanel");
+  onValue(ref(db,"users"), snap=>{
+    panel.innerHTML="";
+    snap.forEach(child=>{
+      const u = child.val();
+      if(u.name===currentUser) return;
+      const div = document.createElement("div");
+      div.className="user";
+      div.innerText=u.name;
+      const status = document.createElement("div");
+      status.className = u.online ? "online-dot" : "offline-dot";
+      div.appendChild(status);
+      div.onclick=()=>openDM(u.name);
+      panel.appendChild(div);
+    });
+  });
+}
+
+// GLOBAL CHAT
+function listenMessages(){
+  const chatRef = ref(db,"chats/global/messages");
+  onChildAdded(chatRef,data=>{
+    const m = data.val();
+    const msgDivId = "global_"+data.key;
+    if(document.getElementById(msgDivId)) return;
+    const wrapper = document.createElement("div");
+    wrapper.className = "bubble-wrapper "+(m.sender===currentUser?"mine-wrapper":"");
+    const avatar = document.createElement("img");
+    avatar.className = "avatar";
+    avatar.src = "profil.jpg";
+    wrapper.appendChild(avatar);
+    const div = document.createElement("div");
+    div.id = msgDivId;
+    div.className = "bubble "+(m.sender===currentUser?"mine":"other");
+    const time = new Date(m.time).toLocaleTimeString().slice(0,5);
+    div.innerHTML = `${m.sender}: ${m.text} <div class="msg-info">${time} ${m.seen?"✓✓":"✓"}</div>`;
+    wrapper.appendChild(div);
+    document.getElementById("messages").appendChild(wrapper);
+    document.getElementById("messages").scrollTop=document.getElementById("messages").scrollHeight;
+    if(m.sender!==currentUser && !m.seen){
+      update(ref(db,"chats/global/messages/"+data.key),{seen:true});
+    }
+  });
+}
+
+window.send = () => {
+  const text = document.getElementById("msg").value.trim();
+  if(!text) return;
+  push(ref(db,"chats/global/messages"),{
+    sender:currentUser,
+    text,
+    time:Date.now(),
+    seen:false
+  });
+  document.getElementById("msg").value="";
+}
+
+// TYPING
+const msgInput = document.getElementById("msg");
+let typingTimeout;
+msgInput.addEventListener("input", ()=>{
+  set(ref(db,"typing/global/"+currentUser),true);
+  clearTimeout(typingTimeout);
+  typingTimeout = setTimeout(()=>{ set(ref(db,"typing/global/"+currentUser),false); },1500);
+});
+onValue(ref(db,"typing/global"), snap=>{
+  const typingDiv = document.getElementById("typing");
+  let text="";
+  snap.forEach(userSnap=>{
+    const val = userSnap.val();
+    if(userSnap.key!==currentUser && val===true){
+      text = userSnap.key + " yazıyor...";
+    }
+  });
+  typingDiv.innerText = text;
+});
+
+// DM SYSTEM
+function openDM(user){
+  if(openDMs[user]) return;
+  const dmDiv = document.createElement("div");
+  dmDiv.className="dmPanel";
+  dmDiv.id="dm_"+user;
+  const index = Object.keys(openDMs).length;
+  dmDiv.style.right = (20 + index*320)+"px";
+  
+  dmDiv.innerHTML=`
+    <div class="dmHeader">${user} <span class="closeDM" style="cursor:pointer;">❌</span></div>
+    <div class="dmMessages" id="dmMsgs_${user}"></div>
+    <div class="dmInput">
+      <input class="dmInputField" placeholder="Mesaj yaz...">
+      <button class="dmSendBtn">Gönder</button>
+    </div>
+  `;
+  
+  document.body.appendChild(dmDiv);
+  openDMs[user]=true;
+
+  // Event listeners
+  const sendBtn = dmDiv.querySelector(".dmSendBtn");
+  const inputField = dmDiv.querySelector(".dmInputField");
+  const closeBtn = dmDiv.querySelector(".closeDM");
+
+  sendBtn.addEventListener("click", ()=>sendDM(user, inputField));
+  inputField.addEventListener("keypress", (e)=>{ if(e.key==="Enter") sendDM(user, inputField); });
+  closeBtn.addEventListener("click", ()=>closeDM(user));
+
+  listenDM(user);
+}
+
+function sendDM(user, inputField){
+  const text = inputField.value.trim();
+  if(!text) return;
+  push(ref(db,"dms/"+currentUser+"_"+user),{
+    sender:currentUser,
+    text,
+    time:Date.now(),
+    seen:false
+  });
+  inputField.value="";
+}
+
+function closeDM(user){
+  remove(ref(db,"dms/"+currentUser+"_"+user));
+  const dmDiv = document.getElementById("dm_"+user);
+  if(dmDiv) dmDiv.remove();
+  delete openDMs[user];
+}
+
+function listenDM(user){
+  const dmRef = ref(db,"dms/"+currentUser+"_"+user);
+  onChildAdded(dmRef,data=>{
+    const m = data.val();
+    const msgDivId = "dm_"+user+"_"+data.key;
+    if(document.getElementById(msgDivId)) return;
+    const wrapper = document.createElement("div");
+    wrapper.className = "bubble-wrapper "+(m.sender===currentUser?"mine-wrapper":"");
+    const avatar = document.createElement("img");
+    avatar.className = "avatar";
+    avatar.src = "profil.jpg";
+    wrapper.appendChild(avatar);
+    const div = document.createElement("div");
+    div.id = msgDivId;
+    div.className = "bubble "+(m.sender===currentUser?"mine":"other");
+    const time = new Date(m.time).toLocaleTimeString().slice(0,5);
+    div.innerHTML = `${m.sender}: ${m.text} <div class="msg-info">${time}</div>`;
+    wrapper.appendChild(div);
+    const dmMsgs = document.getElementById("dmMsgs_"+user);
+    if(dmMsgs){
+      dmMsgs.appendChild(wrapper);
+      dmMsgs.scrollTop = dmMsgs.scrollHeight;
+    }
+  });
+}
+</script>
+</body>
+</html>
