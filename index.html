@@ -1,186 +1,255 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CTAH</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CTAH</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body, html {
+    width:100%; height:100%;
+    font-family: 'Inter', sans-serif;
+    overflow:hidden;
+    background:#000;
+  }
 
-    body {
-      font-family: 'Inter', sans-serif;
-      height: 100vh;
-      overflow: hidden;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      color: #fff;
-      background: #0f0f0f;
-    }
+  /* Splash ekran */
+  #splash {
+    position:fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    background:#000;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    z-index:10;
+    color:#fff;
+    font-size:5rem;
+    font-weight:700;
+    letter-spacing:1rem;
+  }
 
-    canvas#bgCanvas {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 0;
-    }
+  .letter {
+    display:inline-block;
+    transition: transform 0.8s cubic-bezier(0.25, 0.1, 0.25, 1); /* smooth easing */
+  }
 
-    .container {
-      position: relative;
-      z-index: 1;
-      text-align: center;
-      background: rgba(255, 255, 255, 0.05);
-      padding: 60px 40px;
-      border-radius: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      backdrop-filter: blur(10px);
-    }
+  /* Ana ekran gizli başlangıçta */
+  #main { display:none; }
 
-    .logo {
-      width: 150px;
-      margin-bottom: 30px;
-      opacity: 0;
-      transform: translateY(-20px);
-      animation: fadeInUp 1s forwards 0.5s;
-    }
+  /* Ana ekran stilleri */
+  canvas#bgCanvas {
+    position: absolute; top:0; left:0;
+    width:100%; height:100%; z-index:0;
+  }
 
-    h1 {
-      font-size: 3rem;
-      font-weight: 700;
-      margin-bottom: 20px;
-      background: linear-gradient(90deg, #ffffff, #aaaaaa);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      letter-spacing: 2px;
-      opacity: 0;
-      transform: translateY(-20px);
-      animation: fadeInUp 1s forwards 1s;
-    }
+  /* Tüm içerik kutu içinde */
+  .container {
+  position: fixed;          /* fixed ile ekran ortasında kalacak */
+  top: 50%;                 /* dikey ortala */
+  left: 50%;                /* yatay ortala */
+  transform: translate(-50%, -50%); /* tam ortalama */
+  text-align: center;
+  background: rgba(255,255,255,0.08); /* şeffaf kutucuk */
+  padding: 60px 40px;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+  backdrop-filter: blur(12px);
+  display: inline-block;
+  z-index: 1;
+}
 
-    p {
-      font-size: 1.2rem;
-      margin-bottom: 20px;
-      color: #ccc;
-      opacity: 0;
-      animation: fadeIn 1s forwards 1.5s;
-    }
+  .logo {
+    width:150px; margin-bottom:30px;
+    opacity:0;
+    transform: translateY(-20px);
+    animation: fadeInUp 1s forwards 0.5s;
+  }
 
-    .countdown {
-      font-size: 1.5rem;
-      font-weight: 600;
-      color: #fff;
-      opacity: 0;
-      animation: fadeIn 1s forwards 2s;
-    }
+  h1 {
+    font-size:3rem;
+    font-weight:700;
+    margin-bottom:20px;
+    background: linear-gradient(90deg,#fff,#aaa,#fff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing:2px;
+    opacity:0;
+    transform: translateY(-20px);
+    animation: fadeInUp 1s forwards 1s, shimmer 2s infinite;
+    background-size:200% auto;
+  }
 
-    @keyframes fadeInUp {
-      to { opacity: 1; transform: translateY(0); }
-    }
+  p {
+    font-size:1.2rem;
+    margin-bottom:20px;
+    color:#ccc;
+    opacity:0;
+    animation: fadeIn 1s forwards 1.5s;
+  }
 
-    @keyframes fadeIn {
-      to { opacity: 1; }
-    }
+  .countdown {
+    font-size:1.5rem;
+    font-weight:600;
+    color:#fff;
+    background: rgba(255,255,255,0.1);
+    padding:15px 30px;
+    border-radius:12px;
+    display: inline-block;
+    opacity:0;
+    animation: fadeIn 1s forwards 2s;
+    margin-top:20px;
+  }
 
-    @media (max-width: 600px) {
-      .container { padding: 40px 20px; }
-      h1 { font-size: 2.2rem; }
-      .countdown { font-size: 1.2rem; }
-    }
-  </style>
+  @keyframes fadeInUp { to { opacity:1; transform:translateY(0); } }
+  @keyframes fadeIn { to { opacity:1; } }
+  @keyframes shimmer { 0%{background-position:-100% 0;} 100%{background-position:100% 0;} }
+
+  /* Responsive */
+  @media(max-width:600px){
+    #splash{ font-size:3rem; letter-spacing:0.5rem; }
+    .container{ padding:40px 20px; }
+    h1{ font-size:2.2rem; }
+    .countdown{ font-size:1.2rem; }
+  }
+  .logo:hover {
+  transform: scale(1.05); /* hafif büyüme */
+  filter: drop-shadow(0 0 10px rgba(255,255,255,0.8));
+  transition: all 0.3s ease;
+}
+
+h1:hover {
+  background-position: 100% 0; /* shimmer hareketi hızlanır */
+  transition: background-position 0.5s ease;
+}
+
+.countdown:hover {
+  transform: translateY(-5px); /* hafif yükselme */
+  box-shadow: 0 0 20px rgba(255,255,255,0.5); /* glow efekti */
+  transition: all 0.3s ease;
+}
+</style>
 </head>
 <body>
-  <canvas id="bgCanvas"></canvas>
 
+<!-- Splash ekran -->
+<div id="splash">
+  <span class="letter">C</span>
+  <span class="letter">H</span>
+  <span class="letter">A</span>
+  <span class="letter">T</span>
+</div>
+
+<!-- Ana ekran -->
+<div id="main">
+  <canvas id="bgCanvas"></canvas>
   <div class="container">
     <img src="logo.jpg" alt="CTAH Logo" class="logo">
     <h1>CTAH</h1>
     <p>Şu anda yapım aşamasındayız</p>
     <div class="countdown" id="countdown"></div>
   </div>
+</div>
 
-  <script>
-    // Geri sayım
-    const targetDate = new Date("March 12, 2026 00:00:00").getTime();
-    const countdownEl = document.getElementById("countdown");
+<script>
+const splash = document.getElementById('splash');
+const main = document.getElementById('main');
+const letters = splash.querySelectorAll('.letter');
 
-    function updateCountdown() {
-      const now = new Date().getTime();
-      const distance = targetDate - now;
+// 1. 1 saniye sonra T ve H kayarak yer değişecek
+setTimeout(()=>{
+  letters[1].style.transform='translateX(60px)'; // H sağa
+  letters[3].style.transform='translateX(-60px)'; // T sola
 
-      if(distance <= 0) {
-        countdownEl.innerHTML = "Sitemiz artık yayında!";
-        clearInterval(timer);
-        return;
-      }
+  setTimeout(()=>{
+    letters[1].textContent='T';
+    letters[3].textContent='H';
+    letters.forEach(l=>l.style.transform='translateX(0)');
+  },800);
+},1000);
 
-      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+// 2. 2.5 saniye sonra splash fade-out ve main açılıyor
+setTimeout(()=>{
+  splash.style.transition='opacity 1s ease';
+  splash.style.opacity=0;
+  setTimeout(()=>{
+    splash.style.display='none';
+    main.style.display='block';
+    initMainScreen();
+  },1000);
+},2500);
 
-      countdownEl.innerHTML = `${days}g ${hours}s ${minutes}d ${seconds}sn`;
+function initMainScreen(){
+  // Geri sayım
+const targetDateObj = new Date("March 12, 2026 00:00:00");
+targetDateObj.setDate(targetDateObj.getDate() + 1); // 1 gün ekle
+const targetDate = targetDateObj.getTime();
+  const countdownEl = document.getElementById("countdown");
+
+  function updateCountdown(){
+    const now = new Date().getTime();
+    const distance = targetDate - now;
+    if(distance<=0){
+      countdownEl.innerHTML="Sitemiz artık yayında!";
+      clearInterval(timer);
+      return;
     }
+    const days=Math.floor(distance/(1000*60*60*24));
+    const hours=Math.floor((distance%(1000*60*60*24))/(1000*60*60));
+    const minutes=Math.floor((distance%(1000*60*60))/(1000*60));
+    const seconds=Math.floor((distance%(1000*60))/1000);
+    countdownEl.innerHTML=`${days}g ${hours}s ${minutes}d ${seconds}sn`;
+  }
+  const timer=setInterval(updateCountdown,1000);
+  updateCountdown();
 
-    const timer = setInterval(updateCountdown, 1000);
-    updateCountdown();
+  // Partikül efekti
+  const canvas=document.getElementById('bgCanvas');
+  const ctx=canvas.getContext('2d');
+  canvas.width=window.innerWidth;
+  canvas.height=window.innerHeight;
 
-    // Partikül efekti
-    const canvas = document.getElementById('bgCanvas');
-    const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+  const particles=[];
+  const particleCount=80;
 
-    const particles = [];
-    const particleCount = 80;
+  function Particle(){
+    this.x=Math.random()*canvas.width;
+    this.y=Math.random()*canvas.height;
+    this.size=Math.random()*2+1;
+    this.speedX=(Math.random()-0.5)*0.5;
+    this.speedY=(Math.random()-0.5)*0.5;
+    this.alpha=Math.random()*0.5+0.2;
+  }
 
-    function Particle() {
-      this.x = Math.random() * canvas.width;
-      this.y = Math.random() * canvas.height;
-      this.size = Math.random() * 2 + 1;
-      this.speedX = (Math.random() - 0.5) * 0.5;
-      this.speedY = (Math.random() - 0.5) * 0.5;
-      this.alpha = Math.random() * 0.5 + 0.2;
-    }
+  Particle.prototype.update=function(){
+    this.x+=this.speedX;
+    this.y+=this.speedY;
+    if(this.x<0)this.x=canvas.width;
+    if(this.x>canvas.width)this.x=0;
+    if(this.y<0)this.y=canvas.height;
+    if(this.y>canvas.height)this.y=0;
+  }
 
-    Particle.prototype.update = function() {
-      this.x += this.speedX;
-      this.y += this.speedY;
+  Particle.prototype.draw=function(){
+    ctx.fillStyle=`rgba(255,255,255,${this.alpha})`;
+    ctx.beginPath();
+    ctx.arc(this.x,this.y,this.size,0,Math.PI*2);
+    ctx.fill();
+  }
 
-      if(this.x < 0) this.x = canvas.width;
-      if(this.x > canvas.width) this.x = 0;
-      if(this.y < 0) this.y = canvas.height;
-      if(this.y > canvas.height) this.y = 0;
-    }
+  for(let i=0;i<particleCount;i++){particles.push(new Particle());}
 
-    Particle.prototype.draw = function() {
-      ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha})`;
-      ctx.beginPath();
-      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-      ctx.fill();
-    }
+  function animate(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    for(let p of particles){p.update();p.draw();}
+    requestAnimationFrame(animate);
+  }
 
-    for(let i = 0; i < particleCount; i++) {
-      particles.push(new Particle());
-    }
+  animate();
+  window.addEventListener('resize',()=>{canvas.width=window.innerWidth; canvas.height=window.innerHeight;});
+}
+</script>
 
-    function animate() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      for(let p of particles) {
-        p.update();
-        p.draw();
-      }
-      requestAnimationFrame(animate);
-    }
-
-    animate();
-
-    window.addEventListener('resize', () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    });
-  </script>
 </body>
 </html>
