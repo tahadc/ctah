@@ -42,6 +42,9 @@
     .logo {
       width: 150px;
       margin-bottom: 30px;
+      opacity: 0;
+      transform: translateY(-20px);
+      animation: fadeInUp 1s forwards 0.5s;
     }
 
     h1 {
@@ -52,18 +55,33 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       letter-spacing: 2px;
+      opacity: 0;
+      transform: translateY(-20px);
+      animation: fadeInUp 1s forwards 1s;
     }
 
     p {
       font-size: 1.2rem;
       margin-bottom: 20px;
       color: #ccc;
+      opacity: 0;
+      animation: fadeIn 1s forwards 1.5s;
     }
 
     .countdown {
       font-size: 1.5rem;
       font-weight: 600;
       color: #fff;
+      opacity: 0;
+      animation: fadeIn 1s forwards 2s;
+    }
+
+    @keyframes fadeInUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      to { opacity: 1; }
     }
 
     @media (max-width: 600px) {
