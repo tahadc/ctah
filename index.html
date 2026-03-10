@@ -17,13 +17,13 @@
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
 body{background:var(--bg);display:flex;justify-content:center;align-items:center;height:100vh;color:var(--text);}
 .auth{position:absolute;inset:0;display:flex;justify-content:center;align-items:center;}
-.card{width:350px;padding:30px;background:rgba(255,255,255,0.95);border-radius:25px;box-shadow:0 10px 30px rgba(0,0,0,0.1);text-align:center;}
+.card{width:90%;max-width:350px;padding:30px;background:rgba(255,255,255,0.95);border-radius:25px;box-shadow:0 10px 30px rgba(0,0,0,0.1);text-align:center;}
 .card img.logo{width:80px;height:80px;margin-bottom:15px;border-radius:15px;object-fit:cover;}
 .card input{width:100%;margin:10px 0;padding:14px;border:none;border-radius:12px;background:#f1f1f1;color:var(--text);font-size:16px;}
 .buttons{display:flex;gap:12px;margin-top:15px;}
 .card button{flex:1;padding:14px;border:none;border-radius:12px;background:var(--primary);color:white;font-weight:bold;font-size:15px;cursor:pointer;transition:0.2s;}
 .card button:hover{background:#005bb5;}
-.container{width:500px;height:650px;background:rgba(255,255,255,0.95);border-radius:25px;display:flex;flex-direction:column;padding:20px;display:none;box-shadow:0 10px 40px rgba(0,0,0,0.1);position:relative;}
+.container{width:95%;max-width:500px;height:95vh;background:rgba(255,255,255,0.95);border-radius:25px;display:flex;flex-direction:column;padding:20px;display:none;box-shadow:0 10px 40px rgba(0,0,0,0.1);position:relative;}
 #chatHeader{font-weight:600;font-size:20px;margin-bottom:12px;text-align:left;color:var(--text);display:flex;align-items:center;gap:10px;padding:10px;}
 #chatHeader img.logo{width:36px;height:36px;border-radius:8px;object-fit:cover;}
 #messages{flex:1;overflow:auto;display:flex;flex-direction:column;gap:12px;scroll-behavior:smooth;padding-right:5px;}
@@ -33,7 +33,6 @@ body{background:var(--bg);display:flex;justify-content:center;align-items:center
 .mine{background:var(--mine-bg);color:white;border-bottom-right-radius:6px;}
 .other{background:var(--other-bg);color:var(--text);border-bottom-left-radius:6px;}
 .avatar{width:32px;height:32px;border-radius:50%;object-fit:cover;position:relative;}
-.status-dot{width:10px;height:10px;border-radius:50%;position:absolute;bottom:0;right:0;border:2px solid white;}
 .msg-info{font-size:11px;opacity:0.7;text-align:right;margin-top:4px;}
 #typing{font-size:13px;opacity:0.7;height:18px;margin-top:5px;font-style:italic;}
 #msgBox{display:flex;gap:12px;margin-top:12px;}
@@ -45,7 +44,7 @@ body{background:var(--bg);display:flex;justify-content:center;align-items:center
   position:fixed;
   top:20px;
   right:20px;
-  height:80vh;
+  height:60vh;
   background:rgba(255,255,255,0.95);
   border-radius:15px;
   padding:10px;
@@ -60,13 +59,23 @@ body{background:var(--bg);display:flex;justify-content:center;align-items:center
 .user:hover{background:#d0d0d0;}
 .online-dot{width:10px;height:10px;border-radius:50%;background:var(--online);}
 .offline-dot{width:10px;height:10px;border-radius:50%;background:var(--offline);}
-.dmPanel{position:fixed;bottom:20px;width:300px;max-height:400px;background:rgba(255,255,255,0.95);border-radius:15px;display:flex;flex-direction:column;box-shadow:0 5px 20px rgba(0,0,0,0.2);overflow:hidden;z-index:200;right:20px;}
-.dmPanel:not(:first-child){right: calc(20px + 320px);}
+.dmPanel{position:fixed;bottom:20px;width:90%;max-width:300px;max-height:400px;background:rgba(255,255,255,0.95);border-radius:15px;display:flex;flex-direction:column;box-shadow:0 5px 20px rgba(0,0,0,0.2);overflow:hidden;z-index:200;right:5%;}
 .dmHeader{padding:10px;font-weight:600;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #ccc;}
 .dmMessages{flex:1;overflow:auto;display:flex;flex-direction:column;gap:8px;padding:10px;}
 .dmInput{display:flex;padding:10px;gap:10px;border-top:1px solid #ccc;}
 .dmInput input{flex:1;padding:8px;border-radius:10px;border:none;background:#f1f1f1;}
 .dmInput button{padding:8px 12px;border:none;border-radius:10px;background:var(--primary);color:white;font-weight:bold;cursor:pointer;}
+
+/* MOBILE RESPONSIVE */
+@media (max-width: 600px){
+  .container{width:95%;height:95vh;padding:15px;}
+  #chatHeader{font-size:18px;}
+  #msgBox input{padding:12px;}
+  #msgBox button{padding:12px;}
+  #usersPanel{position:fixed;bottom:0;right:0;width:100%;height:120px;flex-direction:row;overflow-x:auto;overflow-y:hidden;border-radius:0;display:none;}
+  #usersPanel.active{display:flex;}
+  .dmPanel{width:90%;bottom:140px;right:5%;margin-bottom:10px;}
+}
 </style>
 </head>
 <body>
@@ -111,7 +120,6 @@ const firebaseConfig = {
   messagingSenderId: "912157147748",
   appId: "1:912157147748:web:746f4e0a128322bacf5571"
 };
-
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 let currentUser = null;
