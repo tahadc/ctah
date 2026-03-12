@@ -183,7 +183,7 @@ setTimeout(()=>{
 function initMainScreen(){
   // Geri sayım
 const targetDateObj = new Date("March 12, 2026 00:00:00");
-targetDateObj.setDate(targetDateObj.getDate() + 999); // 999 gün ekle
+targetDateObj.setDate(targetDateObj.getDate() + 7); // 7 gün ekle
 const targetDate = targetDateObj.getTime();
   const countdownEl = document.getElementById("countdown");
 
@@ -253,5 +253,6 @@ const targetDate = targetDateObj.getTime();
 
 </body>
 </html>
+
 
 
